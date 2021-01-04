@@ -7,20 +7,21 @@
       "Resource": "arn:aws:states:::sqs:sendMessage",
       "Parameters": {
           "QueueUrl": "<%print_console_queue_url%>",
+          "MessageGroupId": "step-function-tba",
           "MessageBody":{
-              "Input.$": "Welcome to Step Functions Text Based Adventure!\n Verbs: move, examine, take, consume, use\n examples) use key on door, examine door, move door",
-              "TaskToken.$": "$$.Task.Token"
+              "Input": "Welcome to Step Functions Text Based Adventure!\n Verbs: move, examine, take, consume, use\n examples) use key on door, examine door, move door"
           }
       },
       "Next": "jail_cell"
     },
     "jail_cell": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::sns:sendMessage.waitForTaskToken",
+      "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
       "Parameters": {
           "QueueUrl": "<%print_console_queue_url%>",
+          "MessageGroupId": "step-function-tba",
           "MessageBody":{
-              "Input.$": "You find yourself in a jail cell.  A 'cell door' lies at one end of the small room near a pile of soiled straw.",
+              "Input": "You find yourself in a jail cell.  A 'cell door' lies at one end of the small room near a pile of soiled straw.",
               "TaskToken.$": "$$.Task.Token"
           }
       },
@@ -32,7 +33,7 @@
             {
                 "Variable": "$.selection",
                 "StringEquals": "examine inventory",
-                "Next": "examine_inventory"
+                "Next": "jail_examine_inventory"
             },
             {
                 "Variable": "$.selection",
@@ -50,28 +51,40 @@
                 "Next": "pick_cell_door"
             }
         ],
-        "Default": "unknown_selection"
+        "Default": "jail_unknown_selection"
     },
-    "examine_inventory": {
+    "jail_examine_inventory": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sqs:sendMessage",
       "Parameters": {
           "QueueUrl": "<%print_console_queue_url%>",
+          "MessageGroupId": "step-function-tba",
           "MessageBody":{
-              "Input.$": "$.state.inventory",
-              "TaskToken.$": "$$.Task.Token"
+              "Input.$": "$.state.inventory"
           }
       },
-      "Next": "$.state.current_room"
+      "Next": "jail_cell"
     },
     "cell_door_locked": {
       "Type": "Task",
       "Resource": "arn:aws:states:::sqs:sendMessage",
       "Parameters": {
           "QueueUrl": "<%print_console_queue_url%>",
+          "MessageGroupId": "step-function-tba",
           "MessageBody":{
-              "Input.$": "The door is locked. Maybe I have something in my inventory that can help.",
-              "TaskToken.$": "$$.Task.Token"
+              "Input": "The door is locked. Maybe I have something in my inventory that can help."
+          }
+      },
+      "Next": "jail_cell"
+    },
+    "jail_unknown_selection": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sqs:sendMessage",
+      "Parameters": {
+          "QueueUrl": "<%print_console_queue_url%>",
+          "MessageGroupId": "step-function-tba",
+          "MessageBody":{
+              "Input": "I don't understand what you're asking..."
           }
       },
       "Next": "jail_cell"
@@ -81,9 +94,9 @@
       "Resource": "arn:aws:states:::sqs:sendMessage",
       "Parameters": {
           "QueueUrl": "<%print_console_queue_url%>",
+          "MessageGroupId": "step-function-tba",
           "MessageBody":{
-              "Input.$": "You reach through the door's bars and insert the picklock into the keyhole.  You hear a soft click as you finese the pick over the locking mechanism. You don't remember learning how to do that... but you don't have time to think about it. The door swings open.",
-              "TaskToken.$": "$$.Task.Token"
+              "Input": "You reach through the door's bars and insert the picklock into the keyhole.  You hear a soft click as you finese the pick over the locking mechanism. You don't remember learning how to do that... but you don't have time to think about it. The door swings open."
           }
       },
       "Next": "dungeon"
@@ -93,9 +106,9 @@
       "Resource": "arn:aws:states:::sqs:sendMessage",
       "Parameters": {
           "QueueUrl": "<%print_console_queue_url%>",
+          "MessageGroupId": "step-function-tba",
           "MessageBody":{
-              "Input.$": "You reach through the door's bars and insert the picklock into the keyhole.  You hear a soft click as you finese the pick over the locking mechanism. You don't remember learning how to do that... but you don't have time to think about it. The door swings open.",
-              "TaskToken.$": "$$.Task.Token"
+              "Input": "You reach through the door's bars and insert the picklock into the keyhole.  You hear a soft click as you finese the pick over the locking mechanism. You don't remember learning how to do that... but you don't have time to think about it. The door swings open."
           }
       },
       "End": true
